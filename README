@@ -1,0 +1,9 @@
+R-CNN designed to handle the Standford Cars dataset.
+Largely copied from: https://github.com/foamliu/Car-Recognition
+However adjusted to require slightly less pre-processing, and to be slightly more user-friendly.
+
+To begin, extract all files into a common directory. In the same directory create a sub-directory called 'datasets'.
+In here, you will want to put the training and test images, however you will want to combine all images into two files:
+train_cars.h5 and test_cars.h5.
+To create these two files, use the 'h5write.py' script found here: https://github.com/EvanEames/h5_ReadWrite (note that you will also need the 'devkit/train_perfect_preds.txt' and 'devkit/test_perfect_preds.txt' files to create the h5 files. These txt files should be packaged with the cars dataset).
+Once you have created them, place these h5 files in the datasets directory, and then run CarModel.py.

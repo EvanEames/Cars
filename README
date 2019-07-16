@@ -1,6 +1,6 @@
 R-CNN designed to handle the Standford Cars dataset.
 Largely copied from: https://github.com/foamliu/Car-Recognition
-However adjusted to require slightly less pre-processing, and to be slightly more user-friendly.
+However adjusted to require slightly less pre-processing, to be slightly less memory heavy, and to be slightly more user-friendly.
 
 To begin, extract all files into a common directory. In the same directory create a sub-directory called 'datasets'.
 In here, you must put the training and test images, however you will want to combine all images into two files:

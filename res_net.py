@@ -1,6 +1,8 @@
 from keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
 from keras.initializers import glorot_uniform
 from keras.models import Model, load_model
+from custom_layers.scale_layer import Scale
+from keras.optimizers import SGD
 
 #Structure of an identity block:
 from identity_block import *
@@ -21,7 +23,9 @@ def ResNet(input_shape = (224, 224, 3), classes = 196):
     Returns:
     model -- a Model() instance in Keras
     """
-    
+    #Set epsilon value for Batch Normalization
+    eps = 1.1e-5
+
     # Define the input as a tensor with shape input_shape
     X_input = Input(input_shape)
 
@@ -30,8 +34,9 @@ def ResNet(input_shape = (224, 224, 3), classes = 196):
     X = ZeroPadding2D((3, 3))(X_input)
 
     # Stage 1
-    X = Conv2D(64, (7, 7), strides = (2, 2), name = 'conv1', kernel_initializer = glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
+    X = Conv2D(64, (7, 7), strides = (2, 2), name = 'conv1', use_bias=False, kernel_initializer = glorot_uniform(seed=0))(X)
+    X = BatchNormalization(epsilon = eps, axis = 3, name = 'bn_conv1')(X)
+    X = Scale(axis = 3, name = 'scale_conv1')(X)
     X = Activation('relu')(X)
     X = MaxPooling2D((3, 3), strides=(2, 2))(X)
 
@@ -65,6 +70,6 @@ def ResNet(input_shape = (224, 224, 3), classes = 196):
     
     
     # Create model
-    model = Model(inputs = X_input, outputs = X, name='ResNet50')
+    model = Model(inputs = X_input, outputs = X, name='ResNet150')
 
     return model

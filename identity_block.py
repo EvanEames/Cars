@@ -1,6 +1,8 @@
 from keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
 
 from keras.initializers import glorot_uniform
+from custom_layers.scale_layer import Scale
+
 def identity_block(X, f, filters, stage, block):
     """
     Implementation of the identity block as defined in Figure 3
@@ -17,8 +19,10 @@ def identity_block(X, f, filters, stage, block):
     """
     
     # defining name basis
+    eps = 1.1e-5
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
+    scale_name_base = 'scale' + str(stage) + block + '_branch'
     
     # Retrieve Filters
     F1, F2, F3 = filters
@@ -27,18 +31,21 @@ def identity_block(X, f, filters, stage, block):
     X_shortcut = X
     
     # First component of main path
-    X = Conv2D(filters = F1, kernel_size = (1, 1), strides = (1,1), padding = 'valid', name = conv_name_base + '2a', kernel_initializer = glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis = 3, name = bn_name_base + '2a')(X)
+    X = Conv2D(filters = F1, kernel_size = (1, 1), strides = (1,1), padding = 'valid', use_bias=False, name = conv_name_base + '2a', kernel_initializer = glorot_uniform(seed=0))(X)
+    X = BatchNormalization(epsilon = eps, axis = 3, name = bn_name_base + '2a')(X)
+    X = Scale(axis = 3, name = scale_name_base + '2a')(X)
     X = Activation('relu')(X)
     
     # Second component of main path
-    X = Conv2D(filters = F2, kernel_size = (f, f), strides = (1,1), padding = 'same', name = conv_name_base + '2b', kernel_initializer = glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis = 3, name = bn_name_base + '2b')(X)
+    X = Conv2D(filters = F2, kernel_size = (f, f), strides = (1,1), padding = 'same', use_bias=False, name = conv_name_base + '2b', kernel_initializer = glorot_uniform(seed=0))(X)
+    X = BatchNormalization(epsilon = eps, axis = 3, name = bn_name_base + '2b')(X)
+    X = Scale(axis = 3, name = scale_name_base + '2b')(X)
     X = Activation('relu')(X)
 
     # Third component of main path
-    X = Conv2D(filters = F3, kernel_size = (1, 1), strides = (1,1), padding = 'valid', name = conv_name_base + '2c', kernel_initializer = glorot_uniform(seed=0))(X)
-    X = BatchNormalization(axis = 3, name = bn_name_base + '2c')(X)
+    X = Conv2D(filters = F3, kernel_size = (1, 1), strides = (1,1), padding = 'valid', use_bias=False, name = conv_name_base + '2c', kernel_initializer = glorot_uniform(seed=0))(X)
+    X = BatchNormalization(epsilon = eps, axis = 3, name = bn_name_base + '2c')(X)
+    X = Scale(axis = 3, name = scale_name_base + '2c')(X)
 
     # Final step: Add shortcut value to main path, and pass it through a RELU activation
     X = Add()([X,X_shortcut])

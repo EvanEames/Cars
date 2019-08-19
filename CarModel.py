@@ -3,7 +3,7 @@
 #Import a bunch of stuff
 import numpy as np
 from keras import layers, callbacks
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adam
 from keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
 from keras.models import Model, load_model
 from keras.preprocessing import image
@@ -42,6 +42,7 @@ patience = 50 #For Callbacks
 verbose = 1
 num_train_samples = 6549
 num_valid_samples = 1695 #Cross validation: num_train_samples + num_valid_samples = # of train images
+mode = 'sgd' #adam or sgd
 
 #==========================================================================
 #PART 1 - Initialize the Model
@@ -54,13 +55,13 @@ from res_net import *
 
 #Build the model:
 model = ResNet(input_shape = (img_width, img_height, 3), classes = classes)
+if (mode == 'sgd'): optimizer = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
+if (mode == 'adam'): optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 try:
 	model.load_weights("weights.best.hdf5")
-        sgd = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 except:
-        sgd = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
-        model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
 #==========================================================================
 #PART 2 - Import Data and Set-up Training Parameters (Callbacks, etc.)
@@ -97,7 +98,7 @@ valid_generator = valid_data_gen.flow(X_valid, Y_valid, batch_size=batch_size)
 
 # Callbacks
 checkpoint = callbacks.ModelCheckpoint("weights.best.hdf5", monitor='val_acc', verbose=verbose, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-csv_logger = callbacks.CSVLogger('training.log')
+csv_logger = callbacks.CSVLogger('training.log', append=True)
 early_stop = callbacks.EarlyStopping('val_acc', patience=patience)
 reduce_lr = callbacks.ReduceLROnPlateau('val_acc', factor=0.1, patience=int(patience/4), verbose=1)
 callbacks=[csv_logger,checkpoint,early_stop,reduce_lr]

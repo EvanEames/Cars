@@ -55,7 +55,7 @@ from res_net import *
 
 #Build the model:
 model = ResNet(input_shape = (img_width, img_height, 3), classes = classes)
-if (mode == 'sgd'): optimizer = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
+if (mode == 'sgd'): optimizer = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True) #This one seems to work better
 if (mode == 'adam'): optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 try:
 	model.load_weights("weights.best.hdf5")

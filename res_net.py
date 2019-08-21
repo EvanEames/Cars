@@ -62,14 +62,23 @@ def ResNet(input_shape = (224, 224, 3), classes = 196):
     X = identity_block(X, 3, [512, 512, 2048], stage=5, block='c')
 
     # AVGPOOL
-    X = AveragePooling2D(pool_size=(2, 2), padding='valid', name = "avg_pool")(X)
+    Xfc = AveragePooling2D(pool_size=(2, 2), padding='valid', name = "avg_pool")(X)
 
-    # output layer
-    X = Flatten()(X)
-    X = Dense(classes, activation='softmax', name='fc' + str(classes), kernel_initializer = glorot_uniform(seed=0))(X)
+    # First output layer
+    Xfc = Flatten()(Xfc)
+    Xfc = Dense(1000, activation='softmax', name='fc1000' + str(classes))(Xfc)
+
+    #Transfer learning from pretrained weights
+    model = Model(inputs = X_input, outputs = Xfc, name='Cifar10_transfer_learning')
+    model.load_weights('models/resnet152_weights_tf.h5', by_name=True)
+    Xfc2 = AveragePooling2D((7, 7), name='avg_pool')(X)
+
+    # Final output layer
+    Xfc2 = Flatten()(Xfc2)
+    Xfc2 = Dense(classes, activation='softmax', name='fc'+str(classes))(Xfc2)
     
     
     # Create model
-    model = Model(inputs = X_input, outputs = X, name='ResNet150')
+    model = Model(inputs = X_input, outputs = Xfc2, name='ResNet150')
 
     return model

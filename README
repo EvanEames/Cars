@@ -8,4 +8,6 @@ train_cars.h5 and test_cars.h5.
 To create these two files, use the 'h5write.py' script found here: https://github.com/EvanEames/h5_ReadWrite (note that you will also need the 'devkit/train_perfect_preds.txt' and 'devkit/test_perfect_preds.txt' files to create the h5 files. These txt files should be packaged with the cars dataset).
 Once you have created them, place these h5 files in the datasets directory, and then run CarModel.py.
 
+You will also need to down Resnet152 weights pre-trained on the CIFAR-10 dataset for transfer learning. Just google "resnet152_weights_tf.h5" and you should be able to find them. 
+
 Once the weights are well trained, use the guess.py file to make predictions based on url images.
